@@ -6,7 +6,7 @@ namespace ShortBook.SDK.CSharp
 {
     public abstract class ClientBase
     {
-        private readonly IRestClient _client;
+        private readonly RestClient _client;
 
         protected ClientBase()
         {
@@ -20,22 +20,22 @@ namespace ShortBook.SDK.CSharp
 
         protected RequestParameters Parameters { get; }
 
-        protected IRestResponse Post(string resource)
+        protected RestResponse Post(string resource)
         {
-            var request = new RestRequest(resource, Method.POST, DataFormat.Json);
+            var request = new RestRequest(resource);
             foreach (var parameter in Parameters)
             {
-                request.AddParameter(parameter.Name, parameter.Value);
+                request.AddQueryParameter(parameter.Name, parameter.Value);
             }
             
-            return _client.Execute(request);
+            return _client.PostAsync(request).Result;
         }
         
-        protected IRestResponse Post(string resource, object body)
+        protected RestResponse Post(string resource, object body)
         {
-            var request = new RestRequest(resource, Method.POST, DataFormat.Json);
+            var request = new RestRequest(resource);
             request.AddJsonBody(body);
-            return _client.Execute(request);
+            return _client.PostAsync(request).Result;
         }
 
         protected class RequestParameters : IEnumerable<RequestParameter>
@@ -52,7 +52,7 @@ namespace ShortBook.SDK.CSharp
                 _parameters.Clear();
             }
 
-            public RequestParameters Add(string name, object value)
+            public RequestParameters Add(string name, string value)
             {
                 _parameters.Add(new RequestParameter(name, value));
                 return this;
@@ -71,7 +71,7 @@ namespace ShortBook.SDK.CSharp
 
         protected class RequestParameter
         {
-            public RequestParameter(string name, object value)
+            public RequestParameter(string name, string value)
             {
                 Name = name;
                 Value = value;
@@ -79,7 +79,7 @@ namespace ShortBook.SDK.CSharp
 
             public string Name { get; set; }
 
-            public object Value { get; set; }
+            public string Value { get; set; }
         }
     }
 }
